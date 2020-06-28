@@ -1163,6 +1163,10 @@ public class MainFragment extends Fragment implements BottomBarButtonPath {
         LIST_ELEMENTS.add(0, getBackElement());
       }
 
+      if (this.results) {
+        LIST_ELEMENTS.remove(getBackElement());
+      }
+
       if (LIST_ELEMENTS.size() == 0 && !results) {
         nofilesview.setVisibility(View.VISIBLE);
         listView.setVisibility(View.GONE);
