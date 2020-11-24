@@ -41,6 +41,7 @@
     <string name="add_to_bookmarks">Add to Bookmarks</string>
     <string name="enterpath">Enter Path</string>
     <string name="cancel">CANCEL</string>
+    <string name="continue_app_file_storage_only">Use application storage</string>
     <string name="create">CREATE</string>
     <string name="loading">Loading&#8230;</string>
     <string name="file_empty">File is empty</string>

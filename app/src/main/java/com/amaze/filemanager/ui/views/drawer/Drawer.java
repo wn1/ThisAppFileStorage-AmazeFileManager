@@ -417,6 +417,17 @@ public class Drawer implements NavigationView.OnNavigationItemSelectedListener {
       }
     }
 
+    //Application storage adding
+    File appFilesPath = mainActivity.getApplication().getFilesDir();
+    addNewItem(
+            menu,
+            STORAGES_GROUP,
+            order++,
+            R.string.storage_with_application,
+            new MenuMetadata(appFilesPath.getPath()),
+            R.drawable.ic_doc_apk_white,
+            R.drawable.ic_show_chart_black_24dp);
+
     Boolean[] quickAccessPref =
         TinyDB.getBooleanArray(
             mainActivity.getPrefs(), QuickAccessPref.KEY, QuickAccessPref.DEFAULT);

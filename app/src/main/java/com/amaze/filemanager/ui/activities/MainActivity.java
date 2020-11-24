@@ -454,37 +454,41 @@ public class MainActivity extends PermissionsActivity
     }
   }
 
+  private void updateAfterCheckPermission() {
+    drawer.refreshDrawer();
+    TabFragment tabFragment = getTabFragment();
+    boolean b = getBoolean(PREFERENCE_NEED_TO_SET_HOME);
+    // reset home and current paths according to new storages
+    if (b) {
+      TabHandler tabHandler = TabHandler.getInstance();
+      tabHandler.clear();
+      if (tabFragment != null) {
+        tabFragment.refactorDrawerStorages(false);
+        Fragment main = tabFragment.getFragmentAtIndex(0);
+        if (main != null) ((MainFragment) main).updateTabWithDb(tabHandler.findTab(1));
+        Fragment main1 = tabFragment.getFragmentAtIndex(1);
+        if (main1 != null) ((MainFragment) main1).updateTabWithDb(tabHandler.findTab(2));
+      }
+      getPrefs().edit().putBoolean(PREFERENCE_NEED_TO_SET_HOME, false).commit();
+    } else {
+      // just refresh list
+      if (tabFragment != null) {
+        Fragment main = tabFragment.getFragmentAtIndex(0);
+        if (main != null) ((MainFragment) main).updateList();
+        Fragment main1 = tabFragment.getFragmentAtIndex(1);
+        if (main1 != null) ((MainFragment) main1).updateList();
+      }
+    }
+  }
+
   private void checkForExternalPermission() {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !checkStoragePermission()) {
       requestStoragePermission(
-          () -> {
-            drawer.refreshDrawer();
-            TabFragment tabFragment = getTabFragment();
-            boolean b = getBoolean(PREFERENCE_NEED_TO_SET_HOME);
-            // reset home and current paths according to new storages
-            if (b) {
-              TabHandler tabHandler = TabHandler.getInstance();
-              tabHandler.clear();
-              if (tabFragment != null) {
-                tabFragment.refactorDrawerStorages(false);
-                Fragment main = tabFragment.getFragmentAtIndex(0);
-                if (main != null) ((MainFragment) main).updateTabWithDb(tabHandler.findTab(1));
-                Fragment main1 = tabFragment.getFragmentAtIndex(1);
-                if (main1 != null) ((MainFragment) main1).updateTabWithDb(tabHandler.findTab(2));
-              }
-              getPrefs().edit().putBoolean(PREFERENCE_NEED_TO_SET_HOME, false).commit();
-            } else {
-              // just refresh list
-              if (tabFragment != null) {
-                Fragment main = tabFragment.getFragmentAtIndex(0);
-                if (main != null) ((MainFragment) main).updateList();
-                Fragment main1 = tabFragment.getFragmentAtIndex(1);
-                if (main1 != null) ((MainFragment) main1).updateList();
-              }
-            }
-          },
-          true);
+              this::updateAfterCheckPermission,
+              true,
+              this::updateAfterCheckPermission
+      );
     }
   }
 
@@ -690,6 +694,9 @@ public class MainActivity extends PermissionsActivity
           && !volume.getState().equalsIgnoreCase(Environment.MEDIA_MOUNTED_READ_ONLY)) {
         continue;
       }
+      if (!Utils.getVolumeDirectory(volume).canRead() ) {
+        continue;
+      }
       File path = Utils.getVolumeDirectory(volume);
       String name = volume.getDescription(this);
       if (INTERNAL_SHARED_STORAGE.equalsIgnoreCase(name)) {
@@ -709,13 +716,6 @@ public class MainActivity extends PermissionsActivity
       }
       volumes.add(new StorageDirectoryParcelable(path.getPath(), name, icon));
     }
-
-    //Application storage adding
-    File path = getApplication().getFilesDir();
-    volumes.add(new StorageDirectoryParcelable(
-            path.getPath(),
-            getString(R.string.storage_with_application),
-            R.drawable.ic_doc_apk_white));
 
     return volumes;
   }

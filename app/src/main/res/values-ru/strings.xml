@@ -539,5 +539,10 @@
     <string name="got_it">Понял!</string>
     <string name="enable_marquee_filename">Включить эффект бегущей строки для имён файлов</string>
     <string name="close">Закрыть</string>
+
+    <string name="storage_internal">Память устройства</string>
+    <string name="storage_with_application">Память этого приложения</string>
+    <string name="continue_app_file_storage_only">Использовать память этого приложения</string>
+
     </resources>
 

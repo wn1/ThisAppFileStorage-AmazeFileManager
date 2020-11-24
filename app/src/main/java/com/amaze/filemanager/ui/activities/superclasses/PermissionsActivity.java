@@ -46,6 +46,7 @@ public class PermissionsActivity extends ThemedActivity
   public static final int STORAGE_PERMISSION = 0, INSTALL_APK_PERMISSION = 1;
 
   private OnPermissionGranted[] permissionCallbacks = new OnPermissionGranted[PERMISSION_LENGTH];
+  private @NonNull OnAppFileStorageSelectInterface appFileStorageSelectInterface;
 
   @Override
   public void onRequestPermissionsResult(
@@ -57,7 +58,11 @@ public class PermissionsActivity extends ThemedActivity
         permissionCallbacks[STORAGE_PERMISSION] = null;
       } else {
         Toast.makeText(this, R.string.grantfailed, Toast.LENGTH_SHORT).show();
-        requestStoragePermission(permissionCallbacks[STORAGE_PERMISSION], false);
+        requestStoragePermission(permissionCallbacks[
+                STORAGE_PERMISSION],
+                false,
+                appFileStorageSelectInterface
+        );
       }
 
     } else if (requestCode == INSTALL_APK_PERMISSION) {
@@ -75,7 +80,8 @@ public class PermissionsActivity extends ThemedActivity
   }
 
   public void requestStoragePermission(
-      @NonNull final OnPermissionGranted onPermissionGranted, boolean isInitialStart) {
+      @NonNull final OnPermissionGranted onPermissionGranted, boolean isInitialStart,
+      @NonNull final OnAppFileStorageSelectInterface onAppFileStorageSelectInterface) {
     Utils.disableScreenRotation(this);
     final MaterialDialog materialDialog =
         GeneralDialogCreation.showBasicDialog(
@@ -83,16 +89,25 @@ public class PermissionsActivity extends ThemedActivity
             R.string.grant_storage_permission,
             R.string.grantper,
             R.string.grant,
-            R.string.cancel);
+            R.string.cancel,
+            R.string.continue_app_file_storage_only);
     materialDialog.getActionButton(DialogAction.NEGATIVE).setOnClickListener(v -> finish());
+    materialDialog.getActionButton(DialogAction.NEUTRAL).setOnClickListener( v ->
+            {
+              materialDialog.dismiss();
+              onAppFileStorageSelectInterface.onUseAppFileStorageSelected();
+            }
+    );
+
     materialDialog.setCancelable(false);
 
+    appFileStorageSelectInterface = onAppFileStorageSelectInterface;
     requestPermission(
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        STORAGE_PERMISSION,
-        materialDialog,
-        onPermissionGranted,
-        isInitialStart);
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            STORAGE_PERMISSION,
+            materialDialog,
+            onPermissionGranted,
+            isInitialStart);
   }
 
   @RequiresApi(api = Build.VERSION_CODES.M)
@@ -171,5 +186,9 @@ public class PermissionsActivity extends ThemedActivity
 
   public interface OnPermissionGranted {
     void onPermissionGranted();
+  }
+
+  public interface OnAppFileStorageSelectInterface {
+    void onUseAppFileStorageSelected();
   }
 }
