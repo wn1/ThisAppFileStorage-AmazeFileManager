@@ -105,6 +105,7 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -708,6 +709,14 @@ public class MainActivity extends PermissionsActivity
       }
       volumes.add(new StorageDirectoryParcelable(path.getPath(), name, icon));
     }
+
+    //Application storage adding
+    File path = getApplication().getFilesDir();
+    volumes.add(new StorageDirectoryParcelable(
+            path.getPath(),
+            getString(R.string.storage_with_application),
+            R.drawable.ic_doc_apk_white));
+
     return volumes;
   }
 
